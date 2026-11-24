@@ -12,7 +12,7 @@ log_level: INFO
 log_json: true
 
 security:
-  policies: [Basic256Sha256_SignAndEncrypt]
+  policies: [Basic256Sha256_SignAndEncrypt, Aes128Sha256RsaOaep_SignAndEncrypt]
   identity_tokens: [Username]
   allow_anonymous: false
   allow_insecure_legacy: false

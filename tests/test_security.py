@@ -56,6 +56,14 @@ def test_certificate_generation_is_private_and_scoped(tmp_path: Path):
     assert "127.0.0.1" in [str(ip) for ip in san.get_values_for_type(x509.IPAddress)]
     uris = [str(uri) for uri in san.get_values_for_type(x509.UniformResourceIdentifier)]
     assert "urn:freeopcua:python:server" in uris
+    usage = certificate.extensions.get_extension_for_class(x509.KeyUsage).value
+    # Prosys' DefaultCertificateValidator requires these four usage bits.
+    assert usage.digital_signature
+    assert usage.content_commitment
+    assert usage.key_encipherment
+    assert usage.data_encipherment
+    assert not usage.key_cert_sign
+    assert certificate.extensions.get_extension_for_class(x509.BasicConstraints).value.ca is False
     with pytest.raises(SystemExit):
         generate(cert_dir, "glados-test", ["localhost"], [], "urn:freeopcua:python:server", 30, force=False)
 

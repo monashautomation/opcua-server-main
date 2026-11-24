@@ -61,9 +61,9 @@ def generate(
         .add_extension(
             x509.KeyUsage(
                 digital_signature=True,
-                content_commitment=False,
+                content_commitment=True,
                 key_encipherment=True,
-                data_encipherment=False,
+                data_encipherment=True,
                 key_agreement=False,
                 key_cert_sign=False,
                 crl_sign=False,
