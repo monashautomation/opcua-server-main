@@ -11,7 +11,7 @@ license = "MIT"
 requires-python = ">=3.12,<3.13"
 authors = [{ name = "GLaDOS project contributors" }]
 dependencies = [
-    "asyncua==1.1.8",
+    "asyncua==2.1.0",
     "pydantic>=2.7,<3",
     "PyYAML>=6.0,<7",
 ]
