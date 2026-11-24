@@ -1,0 +1,41 @@
+aiofiles==25.1.0
+    # via asyncua
+aiosqlite==0.22.1
+    # via asyncua
+annotated-types==0.8.0
+    # via pydantic
+asyncua==1.1.8
+    # via glados-opcua (pyproject.toml)
+cffi==2.1.1
+    # via cryptography
+cryptography==50.0.2
+    # via
+    #   asyncua
+    #   pyopenssl
+pycparser==3.12
+    # via cffi
+pydantic==2.14.4
+    # via glados-opcua (pyproject.toml)
+pydantic-core==2.50.5
+    # via pydantic
+pyopenssl==26.4.0
+    # via asyncua
+python-dateutil==4.0.0
+    # via asyncua
+pytz==2026.6
+    # via asyncua
+pyyaml==6.0.4
+    # via glados-opcua (pyproject.toml)
+sortedcontainers==2.4.0
+    # via asyncua
+typing-extensions==4.16.0
+    # via
+    #   asyncua
+    #   pydantic
+    #   pydantic-core
+    #   pyopenssl
+    #   typing-inspection
+typing-inspection==0.4.5
+    # via pydantic
+tzdata==2026.6
+    # via python-dateutil

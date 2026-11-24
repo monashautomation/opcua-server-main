@@ -1,0 +1,52 @@
+# GLaDOS OPC UA server settings.
+#
+# Precedence: environment variable > this file > model default.
+# GLADOS_SERVER_URL, GLADOS_PROFILE and GLADOS_LOG_LEVEL are the commonly
+# overridden values (see docs/deployment.md).
+#
+# profile: legacy      isolated compatibility; anonymous + NoSecurity allowed,
+#                      permissions.enforced must be false.
+# profile: production  certificate required, no anonymous, no NoSecurity,
+#                      permissions enforced at the OPC UA service boundary.
+config_version: 1
+profile: legacy
+name: DTL Local OPC UA Server Test
+# Advertised/listen endpoint. Keep the legacy path /server/ and port 4840.
+endpoint: opc.tcp://0.0.0.0:4840/server/
+application_uri: urn:freeopcua:python:server
+product_uri: urn:glados:opcua:server
+manufacturer_name: GLaDOS
+
+# Optional: listen on a different socket than the advertised endpoint (NAT or
+# container publishing). Leave unset to use the endpoint host/port.
+# bind_address: 0.0.0.0
+# bind_port: 4840
+
+log_level: INFO
+log_json: false
+
+security:
+  # NoSecurity is permitted only in the legacy profile.
+  policies: [NoSecurity]
+  identity_tokens: [Anonymous]
+  allow_anonymous: true
+  # Required by the legacy profile: explicit acknowledgement that anonymous,
+  # unauthenticated access is enabled. Never set this in production.
+  allow_insecure_legacy: true
+  certificate: certificates/server.pem
+  private_key: certificates/server.key
+  # Production users. Passwords are read from the named environment variable;
+  # client certificates are matched by exact DER bytes. Example:
+  # users:
+  #   - {username: admin, role: admin, password_env: GLADOS_PASSWORD_ADMIN}
+  #   - {username: wrapper1, role: device, password_env: GLADOS_PASSWORD_WRAPPER1,
+  #      equipment: [robot1]}
+  users: []
+
+health:
+  # Additive namespace; disabled for strict legacy address-space parity.
+  enabled: false
+  namespace: 54
+  uri: urn:glados:opcua:health
+  stale_after_seconds: 30
+  poll_interval_seconds: 5

@@ -1,0 +1,55 @@
+# Production-oriented Compose target.
+#
+# Defaults are fail-closed: production profile, loopback-only published port,
+# read-only filesystem/configuration/certificates, no Linux capabilities, and
+# required password environment variables (compose refuses to start if unset).
+#
+# Before first use:
+#   cp config/examples/server.production.yaml config/server.yaml
+#   cp config/examples/permissions.production.yaml config/permissions.yaml
+#   python scripts/generate_certificates.py --hostname <host> --ip <ip>
+#   cp .env.example .env   # set real passwords; never commit .env
+#   docker compose up -d
+services:
+  glados-opcua:
+    build: .
+    image: glados-opcua:2.0.0
+    container_name: glados-opcua-v2
+    restart: unless-stopped
+    user: '10001:10001'
+    ports:
+      - '${GLADOS_BIND_IP:-127.0.0.1}:${GLADOS_PORT:-4841}:${GLADOS_PORT:-4841}'
+    environment:
+      GLADOS_SERVER_URL: 'opc.tcp://0.0.0.0:${GLADOS_PORT:-4841}/server/'
+      GLADOS_PROFILE: '${GLADOS_PROFILE:-production}'
+      GLADOS_CONFIG_DIR: /app/config
+      GLADOS_LOG_LEVEL: INFO
+      GLADOS_LOG_JSON: 'true'
+      GLADOS_HEALTH_USER: health
+      GLADOS_HEALTH_PASSWORD: '${GLADOS_PASSWORD_HEALTH:?set GLADOS_PASSWORD_HEALTH in .env}'
+      GLADOS_HEALTH_CERT: /app/certificates/health/server.pem
+      GLADOS_HEALTH_KEY: /app/certificates/health/server.key
+      GLADOS_PASSWORD_ADMIN: '${GLADOS_PASSWORD_ADMIN:?set GLADOS_PASSWORD_ADMIN in .env}'
+      GLADOS_PASSWORD_HEALTH: '${GLADOS_PASSWORD_HEALTH:?set GLADOS_PASSWORD_HEALTH in .env}'
+    volumes:
+      - '${GLADOS_CONFIG_DIR:-./config}:/app/config:ro'
+      - '${GLADOS_CERT_DIR:-./certificates}:/app/certificates:ro'
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /tmp
+    stop_grace_period: 30s
+    healthcheck:
+      test: ['CMD', 'python', '/app/scripts/healthcheck.py']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'

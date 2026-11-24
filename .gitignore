@@ -1,0 +1,33 @@
+# Secrets and local state — never commit these.
+.env
+.env.*
+!.env.example
+
+certificates/
+*.pem
+*.key
+*.der
+*.crt
+*.p12
+*.pfx
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Local logs
+*.log

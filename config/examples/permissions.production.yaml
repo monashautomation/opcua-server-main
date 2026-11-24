@@ -1,0 +1,17 @@
+# Production example — copy to config/permissions.yaml when using the
+# production profile. Never deploy with enforced: false in production.
+enforced: true
+roles:
+  admin:
+    read: true
+    write_all: true
+  controller:
+    read: true
+    write_by_writer: [controller]
+  device:
+    read: true
+    write_by_writer: [device]
+  monitor:
+    read: true
+    write_by_writer: []
+denied: []

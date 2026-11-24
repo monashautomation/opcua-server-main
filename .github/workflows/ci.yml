@@ -1,0 +1,67 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.[dev]'
+          pip install -r requirements.lock
+      - name: Lint
+        run: ruff check .
+      - name: Type check
+        run: mypy
+      - name: Tests
+        run: pytest -q
+      - name: Generated documentation is current
+        run: python -m glados_opcua.docs --check
+      - name: Upload generated reference page
+        uses: actions/upload-artifact@v4
+        with:
+          name: glados-opcua-reference
+          path: docs/index.md
+          if-no-files-found: error
+      - name: Configuration is reproducible from legacy source
+        run: |
+          python scripts/migrate_legacy.py --output /tmp/generated-config
+          for generated in /tmp/generated-config/devices/*.yaml; do
+            diff -u "config/devices/$(basename "$generated")" "$generated"
+          done
+          diff -u config/namespaces.yaml /tmp/generated-config/namespaces.yaml
+      - name: Dependency audit (advisory)
+        continue-on-error: true
+        run: pip-audit -r requirements.lock
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t glados-opcua:ci .
+      - name: Smoke test the container (legacy profile, loopback)
+        run: |
+          docker run -d --name glados-ci -p 127.0.0.1:4841:4841 \
+            -e GLADOS_PROFILE=legacy \
+            -e GLADOS_SERVER_URL=opc.tcp://0.0.0.0:4841/server/ \
+            glados-opcua:ci
+          for i in $(seq 1 30); do
+            if docker exec glados-ci python /app/scripts/healthcheck.py; then exit 0; fi
+            sleep 2
+          done
+          docker logs glados-ci
+          exit 1
