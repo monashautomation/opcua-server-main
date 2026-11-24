@@ -78,6 +78,24 @@ The binary protocol uses one port for both listening and advertised endpoints.
 Publish and advertise the same port; otherwise OPC UA discovery returns an
 unreachable URL. Compose uses 4841 during staging; move to 4840 only at cutover.
 
+### Multiple network interfaces
+
+The container must listen on `0.0.0.0` even when clients use a host IP. Compose
+sets `GLADOS_BIND_ADDRESS=0.0.0.0`; set `GLADOS_ADVERTISED_URL` to one reachable
+address. To publish on two host interfaces, copy
+`docker-compose.override.example.yml` to `docker-compose.override.yml` and set:
+
+```dotenv
+GLADOS_BIND_IP_1=172.20.0.152
+GLADOS_BIND_IP_2=172.24.2.152
+GLADOS_ADVERTISED_URL=opc.tcp://172.20.0.152:4841/server/
+```
+
+`!override` replaces the base port mapping, so only the two listed interfaces are
+published. OPC UA discovery advertises the single `GLADOS_ADVERTISED_URL`; clients
+on either interface connect to that interface's address and most stacks rewrite
+the endpoint host to the address they used.
+
 ## Health check
 
 `scripts/healthcheck.py` opens an OPC UA session, reads

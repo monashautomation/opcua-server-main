@@ -20,7 +20,8 @@ services:
     ports:
       - '${GLADOS_BIND_IP:-127.0.0.1}:${GLADOS_PORT:-4841}:${GLADOS_PORT:-4841}'
     environment:
-      GLADOS_SERVER_URL: 'opc.tcp://0.0.0.0:${GLADOS_PORT:-4841}/server/'
+      GLADOS_SERVER_URL: '${GLADOS_ADVERTISED_URL:-opc.tcp://0.0.0.0:${GLADOS_PORT:-4841}/server/}'
+      GLADOS_BIND_ADDRESS: '0.0.0.0'
       GLADOS_PROFILE: '${GLADOS_PROFILE:-production}'
       GLADOS_CONFIG_DIR: /app/config
       GLADOS_LOG_LEVEL: INFO

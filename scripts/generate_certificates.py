@@ -14,7 +14,7 @@ from __future__ import annotations
 import argparse
 import ipaddress
 import os
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from cryptography import x509
@@ -48,7 +48,7 @@ def generate(
     alt_names: list[x509.GeneralName] = [x509.UniformResourceIdentifier(app_uri)]
     alt_names.extend(x509.DNSName(name) for name in dns_names)
     alt_names.extend(x509.IPAddress(ipaddress.ip_address(ip)) for ip in ips)
-    now = datetime.now(UTC)
+    now = datetime.now(timezone.utc)  # noqa: UP017 - keep the script usable on Python 3.10 hosts
     certificate = (
         x509.CertificateBuilder()
         .subject_name(subject)

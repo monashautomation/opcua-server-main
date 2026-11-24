@@ -29,5 +29,9 @@ dist/
 .idea/
 .vscode/
 
+# Local deployment overrides (site-specific IPs/configs)
+docker-compose.override.yml
+/config-production/
+
 # Local logs
 *.log

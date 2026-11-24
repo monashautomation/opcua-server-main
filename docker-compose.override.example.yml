@@ -1,0 +1,11 @@
+# Copy to docker-compose.override.yml (git-ignored) to publish the OPC UA port
+# on two host interfaces, e.g. two lab networks. Set these in .env:
+#   GLADOS_BIND_IP_1, GLADOS_BIND_IP_2, GLADOS_ADVERTISED_URL
+services:
+  glados-opcua:
+    ports: !override
+      - "${GLADOS_BIND_IP_1:?set GLADOS_BIND_IP_1}:${GLADOS_PORT:-4841}:${GLADOS_PORT:-4841}"
+      - "${GLADOS_BIND_IP_2:?set GLADOS_BIND_IP_2}:${GLADOS_PORT:-4841}:${GLADOS_PORT:-4841}"
+    environment:
+      GLADOS_SERVER_URL: "${GLADOS_ADVERTISED_URL:?set GLADOS_ADVERTISED_URL}"
+      GLADOS_BIND_ADDRESS: "0.0.0.0"
